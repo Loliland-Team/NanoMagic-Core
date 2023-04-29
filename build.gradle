@@ -1,0 +1,59 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://files.minecraftforge.net/maven" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'idea'
+
+group 'loliland.adds'
+version '1.0.0'
+
+minecraft {
+    version = "${mc_version}-${forge_version}"
+    runDir = "run"
+
+    clientRunArgs += "--username=loliland"
+    mappings = project.mappings_version
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+    compile fileTree('libs')
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*.info'
+        include '**/*.properties'
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude '**/*.info'
+        exclude '**/*.properties'
+    }
+}
+
+jar {
+    classifier = ''
+    from sourceSets.main.output
+    from sourceSets.api.output
+    manifest.mainAttributes(
+            "Built-By": "Loliland: Team",
+            "Created-By": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+            "Implementation-Title": project.name,
+            "Implementation-Version": project.version,
+            "Built-On": "${mc_version}-${forge_version}"
+    )
+}
